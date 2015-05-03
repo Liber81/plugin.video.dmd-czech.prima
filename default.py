@@ -175,8 +175,8 @@ def NEJNOVEJSI(url,page,kanal):
     newurl = str(url)+''+str(page)+'/'+str(kanal)
     print "newurl: %s"%newurl
     data = getURL(newurl)
-    pattern = '<div class="field-image-.+?"><a href="(.+?)"><span class="container-image.+?"><img src="(.+?)" alt="(.+?)" title=""  class="image.+?class="cover">'
-    pattern = '<div class="field-image-.+?"><a href="(.+?)"><span class="container-image.+?"><img src="(.+?)" alt=.+?class="field-title"><a href=".+?" title="(.+?)">.+?</a></div>'
+    pattern = '<div class="field-image-.+?"><a href="(.+?)"><span class="container-image.+?"><img itemprop="photo" src="(.+?)" alt="(.+?)" title=""  class="image.+?class="cover">'
+    pattern = '<div class="field-image-.+?"><a href="(.+?)"><span class="container-image.+?"><img itemprop="photo" src="(.+?)" alt=.+?class="field-title"><a href=".+?" title="(.+?)">.+?</a></div>'
     match = re.compile(pattern).findall(data)
     for linkurl, obrazek, nazev in match:
         print 'linkurl :'
@@ -214,7 +214,7 @@ def KATEGORIE(url,page,kanal):
     con = urllib2.urlopen(request)
     data = con.read()
     con.close()
-    match = re.compile('<div class=".+?" data-video-id=".+?" data-thumbs-count=".+?"><div class="field-image-primary"><a href="(.+?)"><span class=".+?195x110"><img src="(.+?)".+?<div class="field-title"><a href=".+?" title=".+?">(.+?)</a></div>').findall(data)
+    match = re.compile('<div class=".+?" data-video-id=".+?" data-thumbs-count=".+?"><div class="field-image-primary"><a href="(.+?)"><span class=".+?195x110"><img itemprop="photo" src="(.+?)".+?<div class="field-title"><a href=".+?" title=".+?">(.+?)</a></div>').findall(data)
     match2 = re.compile('<div class="field-title"><a href=".+?" title=".+?">(.+?)</a></div>').findall(data)
     for url,thumb,name in match:
         addDir(replace_words(name, word_dic),__baseurl__+url,10,thumb,0,name)           
@@ -229,14 +229,17 @@ def KATEGORIE(url,page,kanal):
 def INDEX(url,page,kanal):
     data = getURL(url)
     
-    pattern = '<div class="field-image-primary">.+?<img src="(.+?)".+?href="(.+?)">(.+?)</a></div><div class="field-video-count">(.+?) vide'
+    pattern = '<div class="field-image-primary">.+?<img itemprop="photo" src="(.+?)".+?href="(.+?)">(.+?)</a></div><div class="field-video-count">(.+?) vide'
     match = re.compile(pattern).findall(substr(data,'<div class="items">','<div id="rightContainer">'))
     for item in match:
         #addDir(replace_words(name+' '+pocet, word_dic),__baseurl__+url,5,thumb,0,name)
-        if konvert_nazev:
-            addDir(replace_words(item[2]+' - počet videí: '+item[3], word_dic),__baseurl__+item[1],7,item[0],0,item[2])
+        if item[3] == '1':
+            addDir(item[2]+' - počet videí: '+item[3],__baseurl__+item[1],10,item[0],0,item[2])
         else:
-            addDir(item[2]+' - počet videí: '+item[3],__baseurl__+item[1],7,item[0],0,item[2])
+            if konvert_nazev:
+                addDir(replace_words(item[2]+' - počet videí: '+item[3], word_dic),__baseurl__+item[1],7,item[0],0,item[2])
+            else:
+                addDir(item[2]+' - počet videí: '+item[3],__baseurl__+item[1],7,item[0],0,item[2])
     try:
         pattern = '<li class="pager-next last"><a href="(.+?)"'
         match = re.compile(pattern).findall(data)
